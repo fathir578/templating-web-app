@@ -8,6 +8,12 @@
             <h5>{{ $post->title }}</h5>
             <p>{{ $post->body }}</p>
             <a href="/posts/{{ $post->id }}/edit" class="btn btn-warning btn-sm">Edit</a>
+
+            <form action="/posts/{{ $post->id }}" method="POST" style="display:inline">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
         </div>
     </div>
 @endforeach
