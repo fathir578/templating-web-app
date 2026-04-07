@@ -15,17 +15,20 @@ class TodoController extends Controller
 
     public function store(Request $request)
     {
-        Todo::create([
-            'user_id' => auth()->id(),
-            'title' => $request->title,
+        // Validasi input sebelum disimpan
+        // 'title' => 'required' artinya title wajib diisi
+        // 'min:3' artinya minimal 3 karakter
+        // 'max:100' artinya maksimal 100 karakter
+        $request->validate([
+            'title' => 'required|min:3|max:100',
         ]);
-        return redirect('/todos');
-    }
 
-    public function toggle($id)
-    {
-        $todo = Todo::find($id);
-        $todo->update(['is_done' => !$todo->is_done]);
+        // Kalau validasi lolos, baru simpan ke database
+        Todo::create([
+            'user_id' => auth()->id(), // ambil id user yang sedang login
+            'title' => $request->title, // ambil title dari form
+        ]);
+
         return redirect('/todos');
     }
 
