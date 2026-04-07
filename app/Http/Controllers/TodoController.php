@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Todo;
@@ -7,28 +6,40 @@ use Illuminate\Http\Request;
 
 class TodoController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $todos = Todo::where('user_id', auth()->id())->get();
-        return view('todos.index', compact('todos'));
+        $search = $request->input('search');
+
+        $todos = Todo::where('user_id', auth()->id())
+                    ->when($search, function($query) use ($search) {
+                        $query->where('title', 'like', '%' . $search . '%');
+                    })
+                    ->get();
+
+        return view('todos.index', compact('todos', 'search'));
     }
 
     public function store(Request $request)
     {
-        // Validasi input sebelum disimpan
-        // 'title' => 'required' artinya title wajib diisi
-        // 'min:3' artinya minimal 3 karakter
-        // 'max:100' artinya maksimal 100 karakter
         $request->validate([
             'title' => 'required|min:3|max:100',
         ]);
 
-        // Kalau validasi lolos, baru simpan ke database
         Todo::create([
-            'user_id' => auth()->id(), // ambil id user yang sedang login
-            'title' => $request->title, // ambil title dari form
+            'user_id' => auth()->id(),
+            'title' => $request->title,
         ]);
 
+        return redirect('/todos');
+    }
+
+    // Method toggle - tandai todo selesai atau batal
+    public function toggle($id)
+    {
+        $todo = Todo::find($id);
+        // ! artinya kebalikan dari nilai sekarang
+        // kalau is_done = true maka jadi false, begitu sebaliknya
+        $todo->update(['is_done' => !$todo->is_done]);
         return redirect('/todos');
     }
 

@@ -6,6 +6,30 @@
     <h1 class="h3 mb-0 text-gray-800">Todo App</h1>
 </div>
 
+<!-- Form Search -->
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <form action="/todos" method="GET">
+            <div class="input-group">
+                <input type="text" name="search"
+                       class="form-control"
+                       placeholder="Cari todo..."
+                       value="{{ $search }}">
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Cari
+                    </button>
+                    @if($search)
+                        <a href="/todos" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Reset
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Form Tambah Todo -->
 <div class="card shadow mb-4">
     <div class="card-header py-3">
@@ -15,8 +39,8 @@
         <form action="/todos" method="POST">
             @csrf
             <div class="input-group">
-                <input type="text" name="title" 
-                       class="form-control {{ $errors->has('title') ? 'is-invalid' : '' }}" 
+                <input type="text" name="title"
+                       class="form-control {{ $errors->has('title') ? 'is-invalid' : '' }}"
                        placeholder="Tulis todo kamu..."
                        value="{{ old('title') }}">
                 <div class="input-group-append">
@@ -36,21 +60,32 @@
 <!-- List Todo -->
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Daftar Todo</h6>
+        <h6 class="m-0 font-weight-bold text-primary">
+            Daftar Todo
+            @if($search)
+                <span class="text-muted font-weight-normal">— hasil pencarian "{{ $search }}"</span>
+            @endif
+        </h6>
     </div>
     <div class="card-body">
         @if($todos->isEmpty())
-            <p class="text-center text-muted">Belum ada todo. Tambahkan sekarang!</p>
+            <p class="text-center text-muted">
+                @if($search)
+                    Tidak ada todo dengan kata kunci "{{ $search }}"
+                @else
+                    Belum ada todo. Tambahkan sekarang!
+                @endif
+            </p>
         @else
             @foreach($todos as $todo)
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="{{ $todo->is_done ? 'text-muted' : '' }}" 
+                    <span class="{{ $todo->is_done ? 'text-muted' : '' }}"
                           style="{{ $todo->is_done ? 'text-decoration: line-through;' : '' }}">
                         <i class="fas {{ $todo->is_done ? 'fa-check-circle text-success' : 'fa-circle text-secondary' }} mr-2"></i>
                         {{ $todo->title }}
                     </span>
                     <div>
-                        <a href="/todos/{{ $todo->id }}/toggle" 
+                        <a href="/todos/{{ $todo->id }}/toggle"
                            class="btn btn-sm {{ $todo->is_done ? 'btn-secondary' : 'btn-success' }}">
                             {{ $todo->is_done ? 'Batal' : 'Selesai' }}
                         </a>
